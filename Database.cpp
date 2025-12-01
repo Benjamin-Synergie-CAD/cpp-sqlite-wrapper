@@ -8,8 +8,7 @@
 #include <ostream>
 
 Database::Database(const string &filename) {
-    int exit = sqlite3_open(filename.c_str(), &db_);
-    if (exit != SQLITE_OK) {
+    if (const int exit = sqlite3_open(filename.c_str(), &db_); exit != SQLITE_OK) {
         cerr << sqlite3_errmsg(db_) << endl;
     } else {
         cout << "Database successfully opened" << endl;
@@ -19,15 +18,14 @@ Database::Database(const string &filename) {
 Database::~Database() {
     if (db_) {
         sqlite3_close(db_);
-        cout << "Database closed" << endl;
+        cout << "Database successfully closed" << endl;
     }
 }
 
-bool Database::execute(const string &sql) {
+bool Database::execute(const string &sql) const {
     char* errmsg = nullptr;
-    int exit = sqlite3_exec(db_, sql.c_str(), nullptr, nullptr, &errmsg);
 
-    if (exit != SQLITE_OK) {
+    if (const int exit = sqlite3_exec(db_, sql.c_str(), nullptr, nullptr, &errmsg); exit != SQLITE_OK) {
         cerr << sqlite3_errmsg(db_) << endl;
         sqlite3_free(errmsg);
         return false;
@@ -35,7 +33,7 @@ bool Database::execute(const string &sql) {
     return true;
 }
 
-vector<vector<string>> Database::query(const string &query) {
+vector<vector<string>> Database::query(const string &query) const {
     vector<vector<string>> results;
     sqlite3_stmt* stmt;
 
@@ -46,7 +44,7 @@ vector<vector<string>> Database::query(const string &query) {
 
     while (sqlite3_step(stmt) == SQLITE_ROW) {
         vector<string> row;
-        int colCount = sqlite3_column_count(stmt);
+        const int colCount = sqlite3_column_count(stmt);
 
         for (int i = 0; i < colCount; i++) {
             const char* val = reinterpret_cast<const char*>(sqlite3_column_text(stmt, i));
@@ -56,4 +54,13 @@ vector<vector<string>> Database::query(const string &query) {
     }
     sqlite3_finalize(stmt);
     return results;
+}
+
+void Database::print_query(const vector<vector<string>> &query) {
+    for (const auto & i : query) { //boucle sur les lignes
+        for (const auto & j : i) { //boucle sur les colones
+            cout << j << " | "; // Affiche l'element et un espace
+        }
+        cout << endl; //Saut de ligne
+    }
 }

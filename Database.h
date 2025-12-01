@@ -14,14 +14,16 @@ using namespace std;
 
 class Database {
     public:
-    Database(const string& filename);
+    explicit Database(const string& filename);
     ~Database();
 
     //CREATE UPDATE INSERT DELETE
-    bool execute(const string& sql);
+    [[nodiscard]] bool execute(const string& sql) const;
 
     //SELECT
-    vector<vector<string>> query(const string& query);
+    [[nodiscard]] vector<vector<string>> query(const string& query) const;
+
+    static void print_query(const vector<vector<string>>& query);
     private:
     sqlite3* db_ = nullptr;
 };
