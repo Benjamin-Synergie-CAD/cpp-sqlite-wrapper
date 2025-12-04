@@ -19,6 +19,7 @@ class Database {
 
     //CREATE UPDATE INSERT DELETE
     [[nodiscard]] bool execute(const string& sql) const;
+    [[nodiscard]] bool execute_file(const string& filename) const;
 
     //SELECT
     [[nodiscard]] vector<vector<string>> query(const string& query) const;

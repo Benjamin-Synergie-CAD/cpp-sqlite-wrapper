@@ -6,6 +6,8 @@
 
 #include <iostream>
 #include <ostream>
+#include <sstream>
+#include <fstream>
 
 Database::Database(const string &filename) {
     if (const int exit = sqlite3_open(filename.c_str(), &db_); exit != SQLITE_OK) {
@@ -31,6 +33,18 @@ bool Database::execute(const string &sql) const {
         return false;
     }
     return true;
+}
+
+bool Database::execute_file(const string &filename) const {
+    ifstream file(filename);
+    if (!file.is_open()) {
+        cerr << "Failed to open file " << filename << endl;
+        return false;
+    }
+    stringstream buffer;
+    buffer << file.rdbuf();
+    string sql_content = buffer.str();
+    return execute(sql_content);
 }
 
 vector<vector<string>> Database::query(const string &query) const {
@@ -59,7 +73,7 @@ vector<vector<string>> Database::query(const string &query) const {
 void Database::print_query(const vector<vector<string>> &query) {
     for (const auto & i : query) { //boucle sur les lignes
         for (const auto & j : i) { //boucle sur les colones
-            cout << j << " | "; // Affiche l'element et un espace
+            cout << j << " | "; // Affiche l'element et un pipe
         }
         cout << endl; //Saut de ligne
     }
